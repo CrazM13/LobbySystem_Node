@@ -1,10 +1,12 @@
+const io = require('socket.io')(process.env.PORT || 1222);
 const lobbyManagement = require("./LobbySystem/LobbyManagement");
 
-var lobbyManager = new lobbyManagement.LobbyManager(null);
+var lobbyManager = new lobbyManagement.LobbyManager(io);
 
-lobbyManager.createLobby("test");
+io.on('connection', (socket) => {
 
-lobbyManager.createUser(null);
+    const user = lobbyManager.createUser(socket);
 
-var user = lobbyManager.joinLobby(lobbyManager.findUser(""));
-console.log(user.currentLobby.id);
+    console.log(user.id);
+
+});

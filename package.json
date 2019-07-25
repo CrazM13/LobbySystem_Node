@@ -1,0 +1,27 @@
+{
+  "name": "lobbysystem_node",
+  "version": "1.0.0",
+  "description": "Lobby System For Node",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrazM13/LobbySystem_Node.git"
+  },
+  "keywords": [
+    "Lobby",
+    "NodeJS",
+    "SocketIO"
+  ],
+  "author": "Joseph Sepulveda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CrazM13/LobbySystem_Node/issues"
+  },
+  "homepage": "https://github.com/CrazM13/LobbySystem_Node#readme",
+  "dependencies": {
+    "socket.io": "^2.2.0"
+  }
+}
