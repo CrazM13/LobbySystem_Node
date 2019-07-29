@@ -7,13 +7,13 @@ socket.on('connection', () => {
 });
 
 socket.on('JoinedLobby', (data) => {
-    document.getElementById("connected_message").innerHTML = `CONNECTED TO ${data.lobbyID}`;
+    document.getElementById("connected_message").innerHTML = `CONNECTED TO "${data.lobbyID}"`;
     $("#lobbyMenuDisconnected").hide();
     $("#lobbyMenuConnected").show();
 });
 
 socket.on('ExitedLobby', (data) => {
-    document.getElementById("connected_message").innerHTML = `DISCONNECTED FROM ${data.lobbyID}`;
+    document.getElementById("connected_message").innerHTML = `DISCONNECTED FROM "${data.lobbyID}"`;
     $("#lobbyMenuDisconnected").show();
     $("#lobbyMenuConnected").hide();
 
