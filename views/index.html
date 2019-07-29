@@ -5,6 +5,8 @@
 		<title>Research Project</title>
 		<!-- Bootstrap CSS -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+		<!-- Local CSS -->
+		<link rel="stylesheet" href="./scripts/style.css">
 	</head>
 	<body>
 		<!-- Bootstap JS Dependances -->
@@ -16,86 +18,8 @@
 		<!-- SocketIO -->
 		<script src="/socket.io/socket.io.js"></script>
 		<!-- Client Code -->
-		<script>
-			const socket = io();
+		<script src="./scripts/script.js"></script>
 
-			socket.on('connection', () => {
-				document.getElementById("connected_message").innerHTML = `CONNECTED WITHOUT LOBBY`;
-				$("#createLobby :input").prop('disabled', false);
-				$("#findLobby").prop('disabled', false);
-				$("#findLobbyByID :input").prop('disabled', false);
-				$("#disconnect").prop('disabled', true);
-			});
-
-			socket.on('JoinedLobby', (data) => {
-				document.getElementById("connected_message").innerHTML = `CONNECTED TO ${data.lobbyID}`;
-				$("#createLobby :input").prop('disabled', true);
-				$("#findLobby").prop('disabled', true);
-				$("#findLobbyByID :input").prop('disabled', true);
-				$("#disconnect").prop('disabled', false);
-			});
-
-			socket.on('ExitedLobby', (data) => {
-				document.getElementById("connected_message").innerHTML = `DISCONNECTED FROM ${data.lobbyID}`;
-				$("#createLobby :input").prop('disabled', false);
-				$("#findLobby").prop('disabled', false);
-				$("#findLobbyByID :input").prop('disabled', false);
-				$("#disconnect").prop('disabled', true);
-
-				$("#cursors").children().remove();
-			});
-
-			socket.on('JoinFailed', (data) => {
-				console.log(data.err);
-			});
-
-			socket.on('userJoined', (data) => {
-				console.log(data.userID);
-				$('#cursors').append(`<img id="user_${data.userID}" src="./images/cursor.png" style="width: 16px; height: 16px;" />`);
-			});
-
-			socket.on('userLeft', (data) => {
-				console.log(data.userID);
-				$(`#user_${data.userID}`).remove();
-			});
-
-			socket.on('movedMouse', (data) => {
-				console.log(`${data.userID} : ${data.x} ::: ${data.y}`);
-				$(`#user_${data.userID}`).css({
-					position: 'absolute',
-					left: data.x,
-					top: data.y
-				});
-			});
-
-			function createLobbyOnClick() {
-
-				var lobbyID = $("#lobbyIDInput").val();
-				var maxUsers = parseInt($("#maxUsersInput").val());
-				var isPrivate = $("#isPrivateLobby").is(":checked");
-
-				console.log({lobbyID: lobbyID, maxUsers: maxUsers, isPrivate: isPrivate});
-
-				socket.emit('createLobby', {lobbyID: lobbyID, maxUsers: maxUsers, isPrivate: isPrivate});
-			}
-
-			function findLobbyOnClick() {
-				socket.emit('findLobby');
-			}
-
-			function findLobbyByIDOnClick() {
-				socket.emit('findLobby', {lobbyID: $("#lobbyIDSearchInput").val()});
-			}
-
-			function disconnectOnClick() {
-				socket.emit('leaveLobby');
-			}
-
-			$('body').mousemove((event) => {
-				socket.emit('movedMouse', {x: event.pageX, y: event.pageY});
-			});
-
-		</script>
 		<!-- Webpage -->
 		<div class="container-fluid text-center">
 			<h1 id="connected_message">NOT CONNECTED</h1>
@@ -103,31 +27,35 @@
 			<br />
 			<br />
 			<br />
-			<div class="container-fluid card card-body" style="width: 18rem;">
-				<div id="createLobby">
-					<div class="input-group">
-						<span class="input-group-text">Lobby ID: </span>
-						<input id="lobbyIDInput" class="form-control" type="text" placeholder="Lobby ID" />
+			<div class="card card-body fixed-bottom" style="width: 15rem;">
+				<div id="lobbyMenuDisconnected">
+					<div id="createLobby">
+						<div class="input-group">
+							<span class="input-group-text">Lobby ID: </span>
+							<input id="lobbyIDInput" class="form-control" type="text" placeholder="Lobby ID" />
+						</div>
+						<div class="input-group">
+							<span class="input-group-text">Max Users: </span>	
+							<input id="maxUsersInput" class="form-control" type="number" value="1" min="1" />
+						</div>
+						<div class="input-group">
+							<span class="input-group-text">Private Lobby: </span>	
+							<input id="isPrivateLobby" class="form-control" type="checkbox">
+						</div>
+						<button type="button" class="btn btn-primary btn-lg btn-block" onclick="createLobbyOnClick()">Create Lobby</button>
 					</div>
-					<div class="input-group">
-						<span class="input-group-text">Max Users: </span>	
-						<input id="maxUsersInput" class="form-control" type="number" value="1" min="1" />
+					<hr />
+					<button id="findLobby" type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyOnClick()">Connect To Random Lobby</button>
+					<hr />
+					<div id="findLobbyByID">
+						<input id="lobbyIDSearchInput" class="form-control" type="text" placeholder="Lobby ID" />
+						<button type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyByIDOnClick()">Connect To Lobby</button>
 					</div>
-					<div class="input-group">
-						<span class="input-group-text">Private Lobby: </span>	
-						<input id="isPrivateLobby" class="form-control" type="checkbox">
-					</div>
-					<button type="button" class="btn btn-primary btn-lg btn-block" onclick="createLobbyOnClick()">Create Lobby</button>
 				</div>
 				<hr />
-				<button id="findLobby" type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyOnClick()">Connect To Random Lobby</button>
-				<hr />
-				<div id="findLobbybyID">
-					<input id="lobbyIDSearchInput" class="form-control" type="text" placeholder="Lobby ID" />
-					<button type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyByIDOnClick()">Connect To Lobby</button>
+				<div id="lobbyMenuConnected">
+					<button id="disconnect" type="button" class="btn btn-primary btn-lg btn-block" onclick="disconnectOnClick()">Disconnect From Lobby</button>
 				</div>
-				<hr />
-				<button id="disconnect" type="button" class="btn btn-primary btn-lg btn-block" onclick="disconnectOnClick()">Disconnect From Lobby</button>
 			</div>
 
 			

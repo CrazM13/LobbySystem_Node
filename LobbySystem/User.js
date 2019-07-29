@@ -26,4 +26,8 @@ module.exports = class User {
         return userID == this.id;
     }
 
+    broadcast(eventName, eventData) {
+        this.socket.broadcast.to(this.currentLobby.id).emit(eventName, eventData);
+    }
+
 }

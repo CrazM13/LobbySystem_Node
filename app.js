@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('movedMouse', (data) => {
-		if (user.currentLobby) user.currentLobby.broadcast('movedMouse', {userID: user.id, x: data.x, y: data.y});
+		if (user.currentLobby) user.broadcast('movedMouse', {userID: user.id, x: data.x, y: data.y});
 	});
 
 });
