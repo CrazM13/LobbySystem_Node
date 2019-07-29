@@ -13,13 +13,13 @@ module.exports = class User {
     }
 
     leaveLobby() {
+        if (this.currentLobby) this.socket.leave(this.currentLobby.id);
         this.currentLobby = null;
-        this.socket.leave(this.currentLobby.id);
         return this;
     }
 
     equals(user) {
-        return equalsID(user.id);
+        return this.equalsID(user.id);
     }
 
     equalsID(userID) {

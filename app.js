@@ -26,6 +26,22 @@ io.on('connection', (socket) => {
 		lobbyManager.removeUser(user);
 	});
 
+	socket.on('createLobby', (data) => {
+		var lobby = lobbyManager.createLobby(data.lobbyID, data.maxUsers, data.isPrivate);
+		lobby.join(user);
+		socket.emit('JoinedLobby', {lobbyID: lobby.id});
+	});
+
+	socket.on('disconnect', () => {
+		var lobby = user.currentLobby;
+		lobbyManager.removeUser(user);
+		if (lobby && lobby.users.length <= 0) lobbyManager.removeLobby(lobby);
+	});
+
+	socket.on('movedMouse', (data) => {
+		if (user.currentLobby) user.currentLobby.broadcast('movedMouse', {userID: user.id, x: data.x, y: data.y});
+	});
+
 });
 
 router.get('/', (req, res) => {
@@ -33,6 +49,7 @@ router.get('/', (req, res) => {
 });
 
 app.use(express.static(__dirname + "/views"));
+app.use(express.static(__dirname + "/public"));
 
 app.use('/', router);
 server.listen(port, () => {

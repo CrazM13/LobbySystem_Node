@@ -9,8 +9,8 @@ module.exports = class LobbyManager {
         this.users = [];
     }
 
-    createLobby(id) {
-        var newLobby = new Lobby(id);
+    createLobby(id, maxUsers = 1, isPrivate = false) {
+        var newLobby = new Lobby(id, maxUsers, isPrivate, this);
         this.lobbies.push(newLobby);
         return newLobby;
     }
@@ -31,7 +31,7 @@ module.exports = class LobbyManager {
 
             if (!lobby.isPrivate && lobby.hasOpenSeats()) {
                 lobby.join(user);
-                user.socket.emit('JoinedLobby', lobby);
+                user.socket.emit('JoinedLobby', {lobbyID: lobby.id});
                 return user;
             }
         }
@@ -46,7 +46,7 @@ module.exports = class LobbyManager {
 
             if (lobby.id == id) {
                 
-                if (lobby.hasOpenSeats()) { lobby.join(user); user.socket.emit('JoinedLobby', lobby); }
+                if (lobby.hasOpenSeats()) { lobby.join(user); user.socket.emit('JoinedLobby', {lobbyID: lobby.id}); }
                 else user.socket.emit('JoinFailed', {err: "The Lobby Is Full"});
 
                 return user;
@@ -65,7 +65,7 @@ module.exports = class LobbyManager {
             user.currentLobby = null;
         }
 
-        user.socket.emit('ExitedLobby');
+        user.socket.emit('ExitedLobby', {lobbyID: lobby ? lobby.id : ""});
         return user;
     }
 
@@ -74,11 +74,17 @@ module.exports = class LobbyManager {
     }
 
     broadcast(lobbyID, eventName, eventData) {
-        this.io.to(lobbyID).broadcast(eventName, eventData);
+        this.io.to(lobbyID).emit(eventName, eventData);
     }
 
     findLobby(lobbyID) {
         return this.lobbies.find((lobby) => lobby.equalsID(lobbyID));
+    }
+
+    removeLobby(lobby) {
+        var index = this.lobbies.findIndex((lobbyObj) => lobbyObj.equals(lobby));
+
+        this.lobbies.splice(index, 1);
     }
 
 }

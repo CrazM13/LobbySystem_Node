@@ -17,6 +17,10 @@ module.exports = class Lobby {
     }
 
     join(user) {
+        this.broadcast('userJoined', {userID: user.id});
+        this.users.forEach((existing) => {user.socket.emit('userJoined', {userID: existing.id});});
+        
+
         this.users.push(user);
         user.joinLobby(this);
     }
@@ -24,8 +28,10 @@ module.exports = class Lobby {
     remove(user) {
         var index = this.users.findIndex((userObj) => userObj.equals(user));
 
-        this.users = this.users.splice(index, 1);
+        this.users.splice(index, 1);
         user.leaveLobby();
+
+        this.broadcast('userLeft', {userID: user.id});
 
         return user;
     }
@@ -35,7 +41,7 @@ module.exports = class Lobby {
 
         var user = this.users[index];
 
-        this.users = this.users.splice(index, 1);
+        this.users.splice(index, 1);
         user.leaveLobby();
 
         return user;
