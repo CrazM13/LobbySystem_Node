@@ -23,7 +23,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('leaveLobby', (data) => {
+		var lobby = user.currentLobby ? user.currentLobby.id : "";
 		lobbyManager.removeUser(user);
+		if (lobby != "" && lobbyManager.findLobby(lobby).users.length <= 0) lobbyManager.removeLobby(lobby);
 	});
 
 	socket.on('createLobby', (data) => {
@@ -33,9 +35,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('disconnect', () => {
-		var lobby = user.currentLobby;
+		var lobby = user.currentLobby ? user.currentLobby.id : "";
 		lobbyManager.removeUser(user);
-		if (lobby && lobby.users.length <= 0) lobbyManager.removeLobby(lobby);
+		if (lobby != "" && lobbyManager.findLobby(lobby).users.length <= 0) lobbyManager.removeLobby(lobby);
 	});
 
 	socket.on('movedMouse', (data) => {
