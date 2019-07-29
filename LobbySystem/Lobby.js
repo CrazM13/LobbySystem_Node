@@ -42,7 +42,7 @@ module.exports = class Lobby {
     }
 
     broadcast(eventName, eventData) {
-        // TODO
+        this.lobbyManager.broadcast(this.id, eventName, eventData);
     }
 
     equals(lobby) {

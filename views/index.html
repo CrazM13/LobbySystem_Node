@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Research Project</title>
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	</head>
+	<body>
+		<!-- Bootstap JS Dependances -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" crossorigin="anonymous"></script>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+		<!-- Bootstrap JS -->
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+		<!-- SocketIO -->
+		<script src="/socket.io/socket.io.js"></script>
+		<!-- Client Code -->
+		<script>
+			const socket = io();
+
+			socket.on('connection', () => {
+				document.getElementById("connected_message").innerHTML = `CONNECTED WITHOUT LOBBY`;
+				$("#findLobby").prop('disabled', false);
+				$("#findLobbyByID").prop('disabled', false);
+				$("#disconnect").prop('disabled', true);
+			});
+
+			socket.on('JoinedLobby', (data) => {
+				document.getElementById("connected_message").innerHTML = `CONNECTED TO ${data.id}`;
+				$("#findLobby").prop('disabled', true);
+				$("#findLobbyByID").prop('disabled', true);
+				$("#disconnect").prop('disabled', false);
+			});
+
+			socket.on('ExitedLobby', (data) => {
+				document.getElementById("connected_message").innerHTML = `DISCONNECTED FROM ${data.id}`;
+				$("#findLobby").prop('disabled', false);
+				$("#findLobbyByID").prop('disabled', false);
+				$("#disconnect").prop('disabled', true);
+			});
+
+			socket.on('JoinFailed', (data) => {
+				console.log(data.err);
+			});
+
+			function createLobbyOnClick() {
+				socket.emit('createLobby');
+			}
+
+			function findLobbyOnClick() {
+				socket.emit('findLobby');
+			}
+
+			function findLobbyByIDOnClick() {
+				socket.emit('findLobby', {lobbyID: $("#lobbyIDSearchInput").val()});
+			}
+
+			function disconnectOnClick() {
+				socket.emit('leaveLobby');
+			}
+
+		</script>
+		<!-- Webpage -->
+		<div class="container-fluid text-center">
+			<h1 id="connected_message">NOT CONNECTED</h1>
+
+			<div class="container-fluid card card-body" style="width: 18rem;">
+				<div id="createLobby">
+					<div class="input-group">
+						<span class="input-group-text">Lobby ID: </span>
+						<input id="lobbyIDInput" class="form-control" type="text" placeholder="Lobby ID" />
+					</div>
+					<div class="input-group">
+						<span class="input-group-text">Max Users: </span>	
+						<input id="maxUsersInput" class="form-control" type="number" placeholder="1" min="1" />
+					</div>
+					<div class="input-group">
+						<span class="input-group-text">Private Lobby: </span>	
+						<input id="isPrivateLobby" class="form-control" type="checkbox">
+					</div>
+					<button type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyByIDOnClick()">Connect To Random Lobby</button>
+				</div>
+				<hr />
+				<button id="findLobby" type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyOnClick()">Connect To Random Lobby</button>
+				<hr />
+				<div id="findLobbybyID">
+					<input id="lobbyIDSearchInput" class="form-control" type="text" placeholder="Lobby ID" />
+					<button type="button" class="btn btn-primary btn-lg btn-block" onclick="findLobbyByIDOnClick()">Connect To Random Lobby</button>
+				</div>
+				<hr />
+				<button id="disconnect" type="button" class="btn btn-primary btn-lg btn-block" onclick="disconnectOnClick()">Disconnect From Lobby</button>
+			</div>
+
+			
+		</div>
+	</body>
+</html>

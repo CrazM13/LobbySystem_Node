@@ -8,11 +8,13 @@ module.exports = class User {
 
     joinLobby(lobby) {
         this.currentLobby = lobby;
+        this.socket.join(lobby.id);
         return this;
     }
 
     leaveLobby() {
         this.currentLobby = null;
+        this.socket.leave(this.currentLobby.id);
         return this;
     }
 

@@ -31,12 +31,12 @@ module.exports = class LobbyManager {
 
             if (!lobby.isPrivate && lobby.hasOpenSeats()) {
                 lobby.join(user);
-                // EVENT "JoinedLobby"
+                user.socket.emit('JoinedLobby', lobby);
                 return user;
             }
         }
 
-        // EVENT "JoinFailed"
+        user.socket.emit('JoinFailed', {err: "No Open Lobbies Found"});
         return user;
     }
 
@@ -46,14 +46,14 @@ module.exports = class LobbyManager {
 
             if (lobby.id == id) {
                 
-                if (lobby.hasOpenSeats()) lobby.join(user);
-                //else //EVENT "JoinFailed"
+                if (lobby.hasOpenSeats()) { lobby.join(user); user.socket.emit('JoinedLobby', lobby); }
+                else user.socket.emit('JoinFailed', {err: "The Lobby Is Full"});
 
                 return user;
             }
         }
 
-        // EVENT "JoinFailed"
+        user.socket.emit('JoinFailed', {err: `No Lobbies With ID ${id} Found`});
         return user;
     }
 
@@ -65,7 +65,7 @@ module.exports = class LobbyManager {
             user.currentLobby = null;
         }
 
-        // EVENT "ExitedLobby"
+        user.socket.emit('ExitedLobby');
         return user;
     }
 
@@ -74,7 +74,7 @@ module.exports = class LobbyManager {
     }
 
     broadcast(lobbyID, eventName, eventData) {
-        // TODO
+        this.io.to(lobbyID).broadcast(eventName, eventData);
     }
 
     findLobby(lobbyID) {
